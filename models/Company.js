@@ -50,6 +50,7 @@ const companySchema = new mongoose.Schema({
   website: { 
     type: String 
   },
+  
   profileImage: {
     type: String
   },

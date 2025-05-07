@@ -16,6 +16,7 @@ export const recordAttendance = async (req, res) => {
   }
 };
 
+
 // Get attendance for an employee
 export const getAttendanceByEmployee = async (req, res) => {
   try {

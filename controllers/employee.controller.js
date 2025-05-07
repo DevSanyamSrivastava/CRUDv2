@@ -3,10 +3,18 @@ import Employee from '../models/Employee.js';
 // Register a new employee
 export const registerEmployee = async (req, res) => {
   try {
-    const { companyId, employeeId, name, email, username, phoneNo, password, departmentId, salary, jobTitleId, gender, dateOfBirth, joiningDate, address, bio, profileImage } = req.body;
+    const {
+      companyId, employeeId, name, email, username, phoneNo,
+      password, departmentId, salary, jobTitleId, gender,
+      dateOfBirth, joiningDate, address, bio
+    } = req.body;
+
+    const profileImage = req.file ? req.file.filename : null;
 
     const employee = new Employee({
-      companyId, employeeId, name, email, username, phoneNo, password, departmentId, salary, jobTitleId, gender, dateOfBirth, joiningDate, address, bio, profileImage
+      companyId, employeeId, name, email, username, phoneNo,
+      password, departmentId, salary, jobTitleId, gender,
+      dateOfBirth, joiningDate, address, bio, profileImage
     });
 
     await employee.save();
@@ -67,9 +75,14 @@ export const updateEmployee = async (req, res) => {
       return res.status(400).json({ message: 'Email cannot be updated' });
     }
 
+    const updateData = { ...req.body };
+    if (req.file) {
+      updateData.profileImage = req.file.filename;
+    }
+
     const updatedEmployee = await Employee.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true }
     );
 

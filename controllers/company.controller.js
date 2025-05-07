@@ -6,13 +6,24 @@ export const registerCompany = async (req, res) => {
     const {
       companyName, ownerName, email, username, phoneNo,
       password, gender, address, bio, industryType,
-      website, profileImage
-    } = req.body; 
+      website
+    } = req.body;
+
+    const profileImage = req.file ? req.file.filename : null;
 
     const company = new Company({
-      companyName, ownerName, email, username, phoneNo,
-      password, gender, address, bio, industryType,
-      website, profileImage
+      companyName,
+      ownerName,
+      email,
+      username,
+      phoneNo,
+      password,
+      gender,
+      address,
+      bio,
+      industryType,
+      website,
+      profileImage
     });
 
     await company.save();
@@ -21,6 +32,7 @@ export const registerCompany = async (req, res) => {
     res.status(500).json({ message: 'Error creating company', error: error.message });
   }
 };
+
 
 // Get all companies
 export const getAllCompanies = async (req, res) => {
@@ -70,25 +82,27 @@ export const loginCompany = async (req, res) => {
 export const updateCompanyById = async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!id) return res.status(400).json({ message: 'ID is required' });
 
     const company = await Company.findById(id);
     if (!company) return res.status(404).json({ message: 'Company not found' });
 
-    const { email: _, ...updateData } = req.body; // prevent email change
+    const { email: _, ...updateData } = req.body;
 
-    const updatedCompany = await Company.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    );
+    if (req.file) {
+      updateData.profileImage = req.file.filename;
+    }
+
+    const updatedCompany = await Company.findByIdAndUpdate(id, updateData, {
+      new: true
+    });
 
     res.status(200).json(updatedCompany);
   } catch (error) {
     res.status(500).json({ message: 'Error updating company by ID', error: error.message });
   }
 };
+
 
 // Update company details by email
 export const updateCompanyByEmail = async (req, res) => {
@@ -104,11 +118,13 @@ export const updateCompanyByEmail = async (req, res) => {
     const company = await Company.findOne({ email });
     if (!company) return res.status(404).json({ message: 'Company not found' });
 
-    const updatedCompany = await Company.findByIdAndUpdate(
-      company._id,
-      updateData,
-      { new: true }
-    );
+    if (req.file) {
+      updateData.profileImage = req.file.filename;
+    }
+
+    const updatedCompany = await Company.findByIdAndUpdate(company._id, updateData, {
+      new: true
+    });
 
     res.status(200).json(updatedCompany);
   } catch (error) {

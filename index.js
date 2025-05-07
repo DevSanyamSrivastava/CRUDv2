@@ -17,7 +17,8 @@ const app = express();
 
 // Middlewares
 app.use(cors());
-app.use(express.json()); // handles JSON body
+app.use(express.json()); 
+app.use('/uploads', express.static('uploads')); 
 
 // Connect to MongoDB
 connectDB();
@@ -33,11 +34,11 @@ app.use('/api/leave', leaveRoutes);
 
 // Home route
 app.get('/', (req, res) => {
-  res.send('✨ HR Management API is up and running ✨');
+  res.send(' HR Management API is up and running ');
 });
 
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(` Server running on http://localhost:${PORT}`);
 });
