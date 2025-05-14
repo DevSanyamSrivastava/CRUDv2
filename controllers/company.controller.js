@@ -1,8 +1,5 @@
 import Company from '../models/Company.js';
 
-// Create a new company
-import Company from '../models/Company.js'; // update path as per your structure
-
 export const registerCompany = async (req, res) => {
   try {
     const {
