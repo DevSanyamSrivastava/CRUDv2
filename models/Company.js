@@ -12,7 +12,7 @@ const companySchema = new mongoose.Schema({
   email: { 
     type: String, 
     required: true,
-    unique: true,
+    
    },
   username: { 
     type: String, 
@@ -21,8 +21,6 @@ const companySchema = new mongoose.Schema({
   phoneNo: { 
     type: String, 
     required: false,  
-    unique: true, 
-    sparse: true,
   },
   password: { 
     type: String, 
