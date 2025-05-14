@@ -1,16 +1,39 @@
 import Company from '../models/Company.js';
 
 // Create a new company
+import Company from '../models/Company.js'; // update path as per your structure
+
 export const registerCompany = async (req, res) => {
   try {
     const {
-      companyName, ownerName, email, username, phoneNo, 
+      companyName, ownerName, email, username, phoneNo,
       password, gender, address, bio, industryType,
       website
     } = req.body;
 
     const profileImage = req.file ? req.file.filename : null;
 
+    // 🔍 Check if email, username or phoneNo already exists
+    const existingCompany = await Company.findOne({
+      $or: [
+        { email },
+        { username },
+        { phoneNo }
+      ]
+    });
+
+    if (existingCompany) {
+      let duplicateField = '';
+      if (existingCompany.email === email) duplicateField = 'Email';
+      else if (existingCompany.username === username) duplicateField = 'Username';
+      else if (existingCompany.phoneNo === phoneNo) duplicateField = 'Phone Number';
+
+      return res.status(400).json({
+        message: `${duplicateField} already exists!`
+      });
+    }
+
+    // ✅ Create and save company
     const company = new Company({
       companyName,
       ownerName,
@@ -28,10 +51,20 @@ export const registerCompany = async (req, res) => {
 
     await company.save();
     res.status(201).json({ message: 'Company created successfully!', company });
+
   } catch (error) {
+    
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0];
+      return res.status(400).json({
+        message: `${field} already exists`
+      });
+    }
+
     res.status(500).json({ message: 'Error creating company', error: error.message });
   }
 };
+
 
 
 // Get all companies
