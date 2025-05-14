@@ -4,7 +4,7 @@ import Company from '../models/Company.js';
 export const registerCompany = async (req, res) => {
   try {
     const {
-      companyName, ownerName, email, username, phoneNo,
+      companyName, ownerName, email, username, phoneNo, 
       password, gender, address, bio, industryType,
       website
     } = req.body;
