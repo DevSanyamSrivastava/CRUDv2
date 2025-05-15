@@ -1,5 +1,5 @@
 import Department from '../models/Department.js';
-
+import JobTitle from '../models/JobTitle.js';
 // Create a new department
 export const createDepartment = async (req, res) => {
   try {
@@ -41,13 +41,25 @@ export const updateDepartment = async (req, res) => {
 
 // Delete department
 export const deleteDepartment = async (req, res) => {
-  try {
-    const deletedDepartment = await Department.findByIdAndDelete(req.params.id);
-    if (!deletedDepartment) {
+    try {
+    const departmentId = req.params.id;
+
+  
+    const jobTitleCount = await JobTitle.countDocuments({ departmentId });
+    if (jobTitleCount > 0) {
+      return res.status(400).json({
+        message: 'Cannot delete company. Delete associated Job Titles first.'
+      });
+    }
+
+    const deletedCompany = await JobTitle.findByIdAndDelete(departmentId);
+    if (!deletedCompany) {
       return res.status(404).json({ message: 'Department not found' });
     }
+
     res.status(200).json({ message: 'Department deleted successfully' });
+
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting department', error: error.message });
+    res.status(500).json({ message: 'Error deleting Department', error: error.message });
   }
 };

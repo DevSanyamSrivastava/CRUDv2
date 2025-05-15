@@ -1,5 +1,5 @@
 import Company from '../models/Company.js';
-
+import Department from '../models/Department.js';
 export const registerCompany = async (req, res) => {
   try {
     const {
@@ -165,12 +165,25 @@ export const updateCompanyByEmail = async (req, res) => {
 // Delete company
 export const deleteCompany = async (req, res) => {
   try {
-    const deletedCompany = await Company.findByIdAndDelete(req.params.id);
+    const companyId = req.params.id;
+
+    // 🔍 Check if departments are linked
+    const departmentCount = await Department.countDocuments({ companyId });
+    if (departmentCount > 0) {
+      return res.status(400).json({
+        message: 'Cannot delete company. Delete associated departments first.'
+      });
+    }
+
+    const deletedCompany = await Company.findByIdAndDelete(companyId);
     if (!deletedCompany) {
       return res.status(404).json({ message: 'Company not found' });
     }
+
     res.status(200).json({ message: 'Company deleted successfully' });
+
   } catch (error) {
     res.status(500).json({ message: 'Error deleting company', error: error.message });
   }
 };
+
