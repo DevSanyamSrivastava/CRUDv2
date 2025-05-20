@@ -40,20 +40,22 @@ export const updateDepartment = async (req, res) => {
 };
 
 // Delete department
+
 export const deleteDepartment = async (req, res) => {
-    try {
+  try {
     const departmentId = req.params.id;
 
-  
+    // Check if any job titles are associated with this department
     const jobTitleCount = await JobTitle.countDocuments({ departmentId });
     if (jobTitleCount > 0) {
       return res.status(400).json({
-        message: 'Cannot delete company. Delete associated Job Titles first.'
+        message: 'Cannot delete department. Delete associated Job Titles first.'
       });
     }
 
-    const deletedCompany = await JobTitle.findByIdAndDelete(departmentId);
-    if (!deletedCompany) {
+    // Delete the department
+    const deletedDepartment = await Department.findByIdAndDelete(departmentId);
+    if (!deletedDepartment) {
       return res.status(404).json({ message: 'Department not found' });
     }
 
