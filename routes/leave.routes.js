@@ -8,9 +8,9 @@ import {
 
 const router = express.Router();
 
-router.post('/', applyLeave);
-router.get('/employee/:employeeId', getLeavesByEmployee);
-router.put('/:id', updateLeaveStatus);
-router.delete('/:id', deleteLeave);
+router.post('/', applyLeave); 
+router.get('/employee/:employeeId', getLeavesByEmployee); 
+router.patch('/:id', updateLeaveStatus); 
+router.delete('/:id', deleteLeave); 
 
 export default router;

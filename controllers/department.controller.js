@@ -27,17 +27,34 @@ export const getDepartmentsByCompany = async (req, res) => {
 };
 
 // Update department details
-export const updateDepartment = async (req, res) => {
+// Update leave status (approve/reject) - PATCH route
+export const updateLeaveStatus = async (req, res) => {
   try {
-    const updatedDepartment = await Department.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedDepartment) {
-      return res.status(404).json({ message: 'Department not found' });
+    const { status } = req.body;
+
+    // Validate status value
+    const allowedStatuses = ['Pending', 'Approved', 'Rejected'];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status value' });
     }
-    res.status(200).json(updatedDepartment);
+
+    
+    const updatedLeave = await Leave.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedLeave) {
+      return res.status(404).json({ message: 'Leave record not found' });
+    }
+
+    res.status(200).json(updatedLeave);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating department', error: error.message });
+    res.status(500).json({ message: 'Error updating leave status', error: error.message });
   }
 };
+
 
 // Delete department
 

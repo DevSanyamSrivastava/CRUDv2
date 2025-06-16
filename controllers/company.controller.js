@@ -5,18 +5,14 @@ export const registerCompany = async (req, res) => {
     const {
       companyName, ownerName, email, username, phoneNo,
       password, gender, address, bio, industryType,
-      website
+      website, latitude, longitude // 👈 add this!
     } = req.body;
 
     const profileImage = req.file ? req.file.filename : null;
 
     // 🔍 Check if email, username or phoneNo already exists
     const existingCompany = await Company.findOne({
-      $or: [
-        { email },
-        { username },
-        { phoneNo }
-      ]
+      $or: [{ email }, { username }, { phoneNo }]
     });
 
     if (existingCompany) {
@@ -25,9 +21,16 @@ export const registerCompany = async (req, res) => {
       else if (existingCompany.username === username) duplicateField = 'Username';
       else if (existingCompany.phoneNo === phoneNo) duplicateField = 'Phone Number';
 
-      return res.status(400).json({
-        message: `${duplicateField} already exists!`
-      });
+      return res.status(400).json({ message: `${duplicateField} already exists!` });
+    }
+
+    // 🌍 Prepare location data
+    let location = undefined;
+    if (latitude && longitude) {
+      location = {
+        type: 'Point',
+        coordinates: [parseFloat(longitude), parseFloat(latitude)]
+      };
     }
 
     // ✅ Create and save company
@@ -43,24 +46,23 @@ export const registerCompany = async (req, res) => {
       bio,
       industryType,
       website,
-      profileImage
+      profileImage,
+      location // 👈 add location here
     });
 
     await company.save();
     res.status(201).json({ message: 'Company created successfully!', company });
 
   } catch (error) {
-    
     if (error.code === 11000) {
       const field = Object.keys(error.keyValue)[0];
-      return res.status(400).json({
-        message: `${field} already exists`
-      });
+      return res.status(400).json({ message: `${field} already exists` });
     }
 
     res.status(500).json({ message: 'Error creating company', error: error.message });
   }
 };
+
 
 
 
@@ -117,8 +119,17 @@ export const updateCompanyById = async (req, res) => {
     const company = await Company.findById(id);
     if (!company) return res.status(404).json({ message: 'Company not found' });
 
-    const { email: _, ...updateData } = req.body;
+    const { email: _, latitude, longitude, ...updateData } = req.body;
 
+    // 📍 Update location if provided
+    if (latitude && longitude) {
+      updateData.location = {
+        type: 'Point',
+        coordinates: [parseFloat(longitude), parseFloat(latitude)]
+      };
+    }
+
+    // 📸 Handle profile image if updated
     if (req.file) {
       updateData.profileImage = req.file.filename;
     }
@@ -132,6 +143,7 @@ export const updateCompanyById = async (req, res) => {
     res.status(500).json({ message: 'Error updating company by ID', error: error.message });
   }
 };
+
 
 
 // Update company details by email
