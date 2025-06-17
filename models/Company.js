@@ -22,17 +22,15 @@ const companySchema = new mongoose.Schema({
   profileImage: { type: String },
 
   // 🌍 Add this for geo-location support
-  location: {
-    type: {
-      type: String,
-      enum: ['Point'],
-      default: 'Point'
-    },
-    coordinates: {
-      type: [Number], // Format: [longitude, latitude]
-      required: false
-    }
+location: {
+  type: {
+    type: String,
+    enum: ['Point'],
   },
+  coordinates: {
+    type: [Number], // [longitude, latitude]
+  }
+},
 
   createdAt: { type: Date, default: Date.now },
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' }

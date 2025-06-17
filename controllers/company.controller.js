@@ -1,16 +1,18 @@
 import Company from '../models/Company.js';
 import Department from '../models/Department.js';
+
+
+
 export const registerCompany = async (req, res) => {
   try {
     const {
       companyName, ownerName, email, username, phoneNo,
       password, gender, address, bio, industryType,
-      website, latitude, longitude // 👈 add this!
+      website, latitude, longitude
     } = req.body;
 
     const profileImage = req.file ? req.file.filename : null;
 
-    // 🔍 Check if email, username or phoneNo already exists
     const existingCompany = await Company.findOne({
       $or: [{ email }, { username }, { phoneNo }]
     });
@@ -24,17 +26,8 @@ export const registerCompany = async (req, res) => {
       return res.status(400).json({ message: `${duplicateField} already exists!` });
     }
 
-    // 🌍 Prepare location data
-    let location = undefined;
-    if (latitude && longitude) {
-      location = {
-        type: 'Point',
-        coordinates: [parseFloat(longitude), parseFloat(latitude)]
-      };
-    }
-
-    // ✅ Create and save company
-    const company = new Company({
+    // 💡 Build the company object dynamically
+    const companyData = {
       companyName,
       ownerName,
       email,
@@ -46,11 +39,20 @@ export const registerCompany = async (req, res) => {
       bio,
       industryType,
       website,
-      profileImage,
-      location // 👈 add location here
-    });
+      profileImage
+    };
 
+    // ✅ Only add location if both lat & lng are valid numbers
+  if (latitude && longitude && !isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
+  companyData.location = {
+    type: 'Point',
+    coordinates: [parseFloat(longitude), parseFloat(latitude)]
+  };
+}
+
+    const company = new Company(companyData);
     await company.save();
+
     res.status(201).json({ message: 'Company created successfully!', company });
 
   } catch (error) {
@@ -62,6 +64,7 @@ export const registerCompany = async (req, res) => {
     res.status(500).json({ message: 'Error creating company', error: error.message });
   }
 };
+
 
 
 
